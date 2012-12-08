@@ -18,6 +18,21 @@ $(function() {
 		};
 
 		touches[touchStartEvent.identifier] = eventInfo;			
+
+		function moveHandler(e) {
+			var currentX = e.touches[0].pageX;
+
+			if(Math.abs(eventInfo.touchStartX - currentX) > 30) {
+				e.preventDefault();
+			}
+		}
+
+		document.addEventListener('touchmove', moveHandler, false);
+
+		document.addEventListener('touchend', function(e) {
+			document.removeEventListener('touchmove', moveHandler, false);
+		}, false);
+
 	}, false);
 
 	document.addEventListener('touchend', function(e) {
