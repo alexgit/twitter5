@@ -6,15 +6,16 @@ $(function() {
 		
 		var touchStartEvent = e.targetTouches[0];
 
-		var timeoutHandle = setTimeout(function() {
-			touches[touchStartEvent.identifier].timeoutHandle = 0;
+		var timeoutId = setTimeout(function() {
+			touches[touchStartEvent.identifier].timeoutId = 0;
 			$(document).trigger('touchhold', [ touchStartEvent ]);
 		}, 400);
 
 		var eventInfo = { 
 			touchStartX: touchStartEvent.pageX, 
+			touchStartY: touchStartEvent.pageY, 
 			touchStartEvent: touchStartEvent, 
-			timeoutHandle: timeoutHandle 
+			timeoutId: timeoutId 
 		};
 
 		touches[touchStartEvent.identifier] = eventInfo;			
@@ -40,8 +41,13 @@ $(function() {
 		var touchEndEvent = e.changedTouches[0];
 		var info = touches[touchEndEvent.identifier];
 		
-		if (info.timeoutHandle) {
-			clearTimeout(info.timeoutHandle);
+		if (info.timeoutId) {
+			clearTimeout(info.timeoutId);
+
+			if(info.touchStartX == touchEndEvent.pageX && 
+				info.touchStartY == touchEndEvent.pageY) {
+					$(touchEndEvent.target).trigger('tap');
+			}
 		}
 
 		var swipeLength = Math.abs(info.touchStartX - touchEndEvent.pageX);
