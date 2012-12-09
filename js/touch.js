@@ -8,7 +8,7 @@ $(function() {
 
 		var timeoutId = setTimeout(function() {
 			touches[touchStartEvent.identifier].timeoutId = 0;
-			$(document).trigger('touchhold', [ touchStartEvent ]);
+			$(touchStartEvent.target).trigger('taphold', [ touchStartEvent ]);
 		}, 400);
 
 		var eventInfo = { 

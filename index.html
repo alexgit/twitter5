@@ -17,35 +17,45 @@
     <body>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
-        <![endif]-->
-
-        <div class="header-container">
-            <header class="wrapper clearfix">
-                <h3 class="title">my touch enabled twitter client</h3>                
-            </header>
-        </div>
+        <![endif]-->        
 
         <div class="main-container">
             <div class="main wrapper clearfix">
-                <div id="tweets-container" data-bind="template: { name: 'tweet-template', foreach: feed }">
-                    
-                </div>                                
-            </div> <!-- #main -->
-        </div> <!-- #main-container -->
 
-        <div class="footer-container">
-            <footer class="wrapper">
-                <h3>footer</h3>
-            </footer>
-        </div>
+                <div id="login-container">
+                    <div data-bind="visible: !loggedIn()">
+                        <input type="text" data-bind="value: username" placeholder="username" /> <br/>
+                        <input type="password" data-bind="value: password" placeholder="password" /> <br/>
+                        <button data-bind="click: login">login</button>
+                    </div>
+                </div>
+
+                <!-- ko if: !loading() && feed().length == 0 -->
+                    <div>No tweets</div>
+                <!-- /ko -->
+
+                <!-- ko if: feed().length > 0 && loggedIn() -->
+                <div id="tweets-container" data-bind="template: { name: 'tweet-template', foreach: feed }">                    
+                </div>
+                <!-- /ko -->
+
+                <div data-bind="visible: loggedIn() && loading()">
+                    Loading...
+                </div>
+
+
+            </div> <!-- #main -->
+        </div> <!-- #main-container -->        
 
         <script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
         <script src="js/vendor/knockout-2.2.0.js"></script>
 
         <script src="js/plugins.js"></script>
         <script src="js/touch.js"></script>
+        <script src="js/twitter-api.js"></script>
+        <script src="js/instapaper-api.js"></script>
         <script src="js/main.js"></script>
-                        
+                                
         <!--
         <script>
             var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
@@ -57,6 +67,8 @@
     </body>
 
     <script type="text/html" id="tweet-template">
-        <div class="tweet" data-bind="text: content, css: { marked : isMarked }"></div>
+        <div class="tweet" data-bind="css: { 'marked' : isMarked, 'saved': isSaved, 'move-off-screen': isBeingDeleted }">
+            <span class="content" data-bind="html: content"></span>
+        </div>
     </script>
 </html>
