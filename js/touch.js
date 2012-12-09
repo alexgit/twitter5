@@ -1,5 +1,13 @@
 $(function() {
 
+	var touch = {
+		settings: {
+			preventScrollThreshold: 30,
+			swipeLengthThreshold: 60,
+			tapholdDurationThreashold: 400
+		}
+	};
+
 	var touches = {};
 
 	document.addEventListener('touchstart', function(e) {		
@@ -9,12 +17,12 @@ $(function() {
 		var timeoutId = setTimeout(function() {
 			touches[touchStartEvent.identifier].timeoutId = 0;
 			$(touchStartEvent.target).trigger('taphold', [ touchStartEvent ]);
-		}, 400);
+		}, touch.settings.tapholdDurationThreashold);
 
 		var eventInfo = { 
-			touchStartX: touchStartEvent.pageX, 
-			touchStartY: touchStartEvent.pageY, 
-			touchStartEvent: touchStartEvent, 
+			pageX: touchStartEvent.pageX, 
+			pageY: touchStartEvent.pageY, 
+			event: touchStartEvent, 
 			timeoutId: timeoutId 
 		};
 
@@ -23,7 +31,7 @@ $(function() {
 		function moveHandler(e) {
 			var currentX = e.touches[0].pageX;
 
-			if(Math.abs(eventInfo.touchStartX - currentX) > 30) {
+			if(Math.abs(eventInfo.pageX - currentX) > touch.settings.preventScrollThreshold) {
 				e.preventDefault();
 			}
 		}
@@ -39,42 +47,31 @@ $(function() {
 	document.addEventListener('touchend', function(e) {
 		
 		var touchEndEvent = e.changedTouches[0];
-		var info = touches[touchEndEvent.identifier];
+		var touchStart = touches[touchEndEvent.identifier];
 		
-		if (info.timeoutId) {
-			clearTimeout(info.timeoutId);
+		if (touchStart.timeoutId) {
+			clearTimeout(touchStart.timeoutId);
 
-			if(info.touchStartX == touchEndEvent.pageX && 
-				info.touchStartY == touchEndEvent.pageY) {
+			if(touchStart.pageX == touchEndEvent.pageX && 
+				touchStart.pageY == touchEndEvent.pageY) {
 					$(touchEndEvent.target).trigger('tap');
 			}
 		}
 
-		var swipeLength = Math.abs(info.touchStartX - touchEndEvent.pageX);
+		var swipeLength = Math.abs(touchStart.pageX - touchEndEvent.pageX);
 
-		console.log('swipe length: ' + swipeLength);
+		if(swipeLength > touch.settings.swipeLengthThreshold) {
+			var direction = touchEndEvent.pageX > touchStart.pageX ? 'right' : 'left';
 
-		if(swipeLength > 60) {
-			var direction = touchEndEvent.pageX > info.touchStartX ? 'right' : 'left';
-
-			console.log('direction: ' + direction);
-
-			var eventDetails = { 
-				events: {
-					start: info.touchStartEvent,
-					end: touchEndEvent
-				}				
+			var events = {
+				start: touchStart.event,
+				end: touchEndEvent
 			};
-
-			console.log(eventDetails);
-
-			$(info.touchStartEvent.target).trigger('swipe' + direction, [ eventDetails ]);
-
-			console.log('called trigger');
+			
+			$(touchStart.event.target).trigger('swipe' + direction, [ events ]);		
 		}
 
 	}, false);
 
-
-	
+	window.touch = touch;
 });
