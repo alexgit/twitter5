@@ -1,57 +1,75 @@
+var following = ['timoreilly', 'newsycombinator', 'spolsky', 'markrendle', 'peterritchie', 'RichardDawkins', 'shanselman', 'codinghorror', 'marcgravell', 'Kurt_Vonnegut', 'mtnygard', 'zedshaw', 'tastapod', 'mikehadlow', 'SethMacFarlane', 'ID_AA_Carmack', 'shit_hn_says', 'Werner', 'ebertchicago', 'jonskeet', 'kzu', 'ploeh', 'HristinaV', 'DEVOPS_BORAT', 'davybrion'];
+
 var linkRegex = /((http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?)/
 function replaceLinks(text) {
 	return text.replace(linkRegex, '<a href="$1">$1</a>');
 }
 
-function Tweet(content) {
+function User(screenName, name) {
+	this.screenName = screenName;
+	this.name = name;
+	this.handle = '@' + this.screenName;
+}
+
+function Tweet(id, content, user) {
 	this.content = replaceLinks(content);
-	this.isMarked = ko.observable(false);
+	this.isSelected = ko.observable(false);
 	this.isSaved = ko.observable(false);
-
 	this.isBeingDeleted = ko.observable(false);
-
-	this.moveOffScreen = function() {
-		this.isBeingDeleted(true);
-	}
-
+	this.isBeingSaved = ko.observable(false);
+	this.id = id;
+	this.user = user;	
+	
 	this.save = function() {
 		this.isSaved(!this.isSaved());
 	}
 
 	this.toggleMarked = function() {
-		this.isMarked(!this.isMarked());
+		this.isSelected(!this.isSelected());
 	}
 }
 
 var isLoggedIn = !!(localStorage.username && localStorage.password);
 
+var twitterFeed = new TwitterFeed('tweets');
+var savedTweets = new TwitterFeed('saved');
+
 var viewmodel = {
 	feed: ko.observableArray([]),
+	currentlyMarked : null,
+	loading: ko.observable(false),
+	username: ko.observable(),
+	password: ko.observable(),
+	loggedIn: ko.observable(isLoggedIn),
 	remove: function(tweet) {
 		var self = this;
 
-		tweet.moveOffScreen();
+		tweet.isBeingDeleted(true);
 		
 		setTimeout(function() {
 			viewmodel.feed.remove(tweet);
 		}, 210);
 	},
+	save: function(tweet) {
+		var self = this;
+
+		tweet.isBeingSaved(true);
+
+		setTimeout(function() {
+			viewmodel.feed.remove(tweet);
+		}, 210);	
+
+		savedTweets.addTweet(tweet); 
+	},
 	toggleMarked: function(tweet) {
 		tweet.toggleMarked();
 
 		if(this.currentlyMarked) {
-			this.currentlyMarked.isMarked(false);
+			this.currentlyMarked.isSelected(false);
 		}
 		
-		this.currentlyMarked = tweet.isMarked() ? tweet : null;		
-	},
-	currentlyMarked : null,
-	loading: ko.observable(false),
-	
-	username: ko.observable(),
-	password: ko.observable(),
-	loggedIn: ko.observable(isLoggedIn),
-
+		this.currentlyMarked = tweet.isSelected() ? tweet : null;		
+	},	
 	login: function() {
 		this.loggedIn(true);
 
@@ -94,22 +112,21 @@ $(function() {
 					});
  			})(i); 			
  		}
- 	});
+ 	}, false);
 	
 	$(document).on('swipeleft', 'div.tweet', function(e) { 
 		var tweet = ko.dataFor(this);
 
-		//if(tweet.isMarked()) {
+		if(tweet.isSelected()) {
 			viewmodel.remove(tweet);
-		//}
+		}
 	});
 
-	$(document).on('swiperight', 'div.tweet', function(e) { 
-		console.log('swipe right detected');
+	$(document).on('swiperight', 'div.tweet', function(e) { 		
 		var tweet = ko.dataFor(this);
 
-		if(!tweet.isMarked()) {
-			tweet.save();
+		if(tweet.isSelected()) {
+			viewmodel.save(tweet);
 		}
 	});
 
@@ -141,19 +158,36 @@ $(function() {
 				addToLocalStorage(url);				
 			}		
 		}
-	});
-
-	viewmodel.loading(true);
+	});	
 
 	ko.computed(function() {
 		if(viewmodel.loggedIn()) {
-			twitterApi.getTweetsForUser('BoingBoing', function(tweets) {		
-				var feed = [];
+			
+			viewmodel.loading(true);
+
+			var lastTweet = twitterFeed.getTweets()[0];
+			var sinceId = (lastTweet && lastTweet.id) || 0;
+
+			twitterApi.getTweetsForUsers(following, sinceId, function(tweets) {		
+				var newTweets = [];
 				ko.utils.arrayForEach(tweets, function(tweet) {
-					feed.push(new Tweet(tweet.text));
+					newTweets.unshift({ 
+						id: tweet.id_str, 
+						content: tweet.text, 
+						user: { 
+							screen_name: tweet.from_user,
+							name: tweet.from_user_name
+						}
+					});
 				});
 
-				viewmodel.feed(feed);
+				twitterFeed.addTweets(newTweets);
+								
+				var tweets = ko.utils.arrayMap(twitterFeed.getTweets(), function(t) {
+					return new Tweet(t.id, t.content, new User(t.user.screen_name, t.user.name));
+				});
+
+				viewmodel.feed(tweets);
 				viewmodel.loading(false);
 			});		
 		}		

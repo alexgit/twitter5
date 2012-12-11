@@ -157,47 +157,59 @@ nav a:hover {
    Author's custom styles
    ========================================================================== */
 
+body {
+    background: #FFFDF2;
+}
+
 div#tweets-container {
     position: relative;
     overflow: hidden;
+    text-align: center;
 }
 
 
 div.tweet {
     background-color: #8CDDED;
     color: white;
-    margin-bottom: 3px;
+    margin-bottom: 10px;
     padding: 5px;
     font-weight: bold;
     font-size: 12px;
     
-    width: 280px;
+    width: 272px;
     height: 80px;
     overflow: hidden;
+
+    text-align: left;
     
-    -webkit-transition: width 200ms ease-out;
-    /*
-    -moz-transition: 1s linear;
-    -o-transition: 1s linear;
-    -ms-transition: 1s linear;
-    transition: 1s linear;
-    */
+    -webkit-transition: 200ms ease-out;
+    -webkit-border-radius: 5px;
+    -webkit-box-shadow: 5px 5px 2px #888;
+    background: -webkit-linear-gradient(left, #1BA5E0, #68BEE3);
 }
 
-div.tweet.marked {
-    background-color: red;
+div.tweet a {
+    color: white;
 }
 
-div.tweet.saved.marked {
-    background-color: red;
+div.tweet.selected {
+    background: red;
+}
+
+div.tweet.saved.selected {
+    background: red;
 }
 
 div.tweet.saved {
-    background-color: blue;
+    background: blue;
 }
 
 div.tweet.move-off-screen {
     width: 0px;
+}
+
+div.tweet.move-off-screen {
+    left: 1000px;
 }
 
 div.tweet.move-off-screen > span.content {
