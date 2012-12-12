@@ -1,4 +1,4 @@
-var following = ['timoreilly', 'newsycombinator', 'spolsky', 'markrendle', 'peterritchie', 'RichardDawkins', 'shanselman', 'codinghorror', 'marcgravell', 'Kurt_Vonnegut', 'mtnygard', 'zedshaw', 'tastapod', 'mikehadlow', 'SethMacFarlane', 'ID_AA_Carmack', 'shit_hn_says', 'Werner', 'ebertchicago', 'jonskeet', 'kzu', 'ploeh', 'HristinaV', 'DEVOPS_BORAT', 'davybrion'];
+var timelineUrl = "http://ec2-54-242-59-225.compute-1.amazonaws.com/tweets/timeline";
 
 var linkRegex = /((http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?)/
 function replaceLinks(text) {
@@ -160,6 +160,28 @@ $(function() {
 		}
 	});	
 
+	var consumeTweets = function(tweets) {
+		var newTweets = [];
+		ko.utils.arrayForEach(tweets, function(tweet) {
+			newTweets.push({ 
+				id: tweet.id_str, 
+				content: tweet.text, 
+				user: { 
+					screen_name: tweet.user.screen_name,
+					name: tweet.user.name
+				}
+			});
+		});
+
+		twitterFeed.addTweets(newTweets);
+						
+		var tweets = ko.utils.arrayMap(twitterFeed.getTweets(), function(t) {
+			return new Tweet(t.id, t.content, new User(t.user.screen_name, t.user.name));
+		});
+
+		viewmodel.feed(tweets);		
+	};
+
 	ko.computed(function() {
 		if(viewmodel.loggedIn()) {
 			
@@ -167,29 +189,20 @@ $(function() {
 
 			var lastTweet = twitterFeed.getTweets()[0];
 			var sinceId = (lastTweet && lastTweet.id) || 0;
-
-			twitterApi.getTweetsForUsers(following, sinceId, function(tweets) {		
-				var newTweets = [];
-				ko.utils.arrayForEach(tweets, function(tweet) {
-					newTweets.unshift({ 
-						id: tweet.id_str, 
-						content: tweet.text, 
-						user: { 
-							screen_name: tweet.from_user,
-							name: tweet.from_user_name
-						}
-					});
-				});
-
-				twitterFeed.addTweets(newTweets);
-								
-				var tweets = ko.utils.arrayMap(twitterFeed.getTweets(), function(t) {
-					return new Tweet(t.id, t.content, new User(t.user.screen_name, t.user.name));
-				});
-
-				viewmodel.feed(tweets);
+						
+			$.ajax({
+				url: timelineUrl + '/' + sinceId,
+				jsonp: 'callback',
+				dataType: 'jsonp'				
+			})
+			.done(consumeTweets)
+			.fail(function(error, statusText) {
+				console.log(error);
+				console.log(statusText);
+			})
+			.always(function() {
 				viewmodel.loading(false);
-			});		
+			});
 		}		
 	});
 

@@ -16,8 +16,9 @@
 
 		this.addTweets = function(tweets) {
 			var currentTweets = this.getTweets();
-			for (var i = 0, j = tweets.length; i < j; i++) {
-				currentTweets.push(tweets[i]);
+
+			for (var i = tweets.length - 1; i >= 0; i--) {
+				currentTweets.unshift(tweets[i]);
 			}
 
 			localStorage[key] = JSON.stringify(currentTweets);
