@@ -52,9 +52,16 @@ $(function() {
 		if (touchStart.timeoutId) {
 			clearTimeout(touchStart.timeoutId);
 
-			if(touchStart.pageX == touchEndEvent.pageX && 
-				touchStart.pageY == touchEndEvent.pageY) {
+			console.log('cleared timeout');
+
+			console.log(touchStart.pageX, touchEndEvent.pageX, touchStart.pageY, touchEndEvent.pageY);
+
+			if(touchStart.pageX == touchEndEvent.pageX && touchStart.pageY == touchEndEvent.pageY) {
+					console.log(touchEndEvent.target);
+					
 					$(touchEndEvent.target).trigger('tap');
+
+					console.log('fired tap event');
 			}
 		}
 

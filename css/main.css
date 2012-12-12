@@ -158,7 +158,11 @@ nav a:hover {
    ========================================================================== */
 
 body {
-    background: #FFFDF2;
+    background: white url('../img/gray_jean/gray_jean.png') repeat left top;
+}
+
+div.main.wrapper {
+    padding-top: 10px;
 }
 
 div#tweets-container {
@@ -167,33 +171,33 @@ div#tweets-container {
     text-align: center;
 }
 
-
-div.tweet {
-    background-color: #8CDDED;
-    color: white;
+div.tile {
+    background-color: #333333;
+    color: #EAEAEA;
     margin-bottom: 10px;
-    padding: 5px;
-    font-weight: bold;
-    font-size: 12px;
-    
-    width: 272px;
-    height: 80px;
+    padding: 10px;    
+    font-size: 16px;
+    font-family: Arial,Verdana,sans-serif;
+    width: 266px;
     overflow: hidden;
-
-    text-align: left;
-    
-    -webkit-transition: 200ms ease-out;
+    line-height: 1.5;
     -webkit-border-radius: 5px;
-    -webkit-box-shadow: 5px 5px 2px #888;
-    background: -webkit-linear-gradient(left, #1BA5E0, #68BEE3);
+    -webkit-box-shadow: 2px 2px 2px #888;   
+}
+
+div.tweet {    
+    -webkit-transition: 200ms ease-out;
+
+    text-align: left;       
+    /* background: -webkit-linear-gradient(left, #1BA5E0, #68BEE3); */
 }
 
 div.tweet a {
-    color: white;
+    color: #A3FFFF;
 }
 
 div.tweet.selected {
-    background: red;
+    background: #C64B4B;
 }
 
 div.tweet.saved.selected {
@@ -214,6 +218,23 @@ div.tweet.move-off-screen {
 
 div.tweet.move-off-screen > span.content {
     display: none;
+}
+
+div.button.load-more {
+    -webkit-transition: 300ms ease-out;
+    -moz-transition: 300ms ease-out;    
+    
+    text-align: center;
+}
+
+div.button.load-more.tapped {
+    background-color: blue;
+}
+
+div.user-container {
+    text-align: right;
+    margin-bottom: 10px;
+    color: yellow;
 }
 
 /* ==========================================================================

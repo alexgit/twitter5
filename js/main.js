@@ -95,6 +95,48 @@ $(function() {
 	}
 
 	var instapaper = new InstaPaperClient(localStorage.username, localStorage.password);
+
+	var consumeTweets = function(tweets) {
+		var newTweets = [];
+		ko.utils.arrayForEach(tweets, function(tweet) {
+			newTweets.push({ 
+				id: tweet.id_str, 
+				content: tweet.text, 
+				user: { 
+					screen_name: tweet.user.screen_name,
+					name: tweet.user.name
+				}
+			});
+		});
+
+		if (newTweets.length) 
+			twitterFeed.addTweets(newTweets);
+						
+		var tweets = ko.utils.arrayMap(twitterFeed.getTweets(), function(t) {
+			return new Tweet(t.id, t.content, new User(t.user.screen_name, t.user.name));
+		});
+
+		viewmodel.feed(tweets);		
+	};
+
+	var loadTweets = function() {
+		var lastTweet = twitterFeed.getTweets()[0];
+		var sinceId = (lastTweet && lastTweet.id) || 0;
+								
+			$.ajax({
+				url: timelineUrl + '/' + sinceId,
+				jsonp: 'callback',
+				dataType: 'jsonp'				
+			})
+			.done(consumeTweets)
+			.fail(function(error, statusText) {
+				console.log(error);
+				console.log(statusText);
+			})
+			.always(function() {
+				viewmodel.loading(false);
+			});		
+	};
 	
  	window.addEventListener('online', function(e) {
  		var links = getLinksFromLocalStorage();		
@@ -140,6 +182,15 @@ $(function() {
 		e.stopPropagation();
 	});
 
+	$(document).on('tap', 'div.button.load-more', function(e) { 
+		var button = $(this);
+			
+		button.addClass('tapped');
+		setTimeout(function() { button.removeClass('tapped') }, 300);
+
+		loadTweets();
+	});
+
 	$(document).on('taphold', 'div.tweet a', function(e) { 
 		e.preventDefault();	
 		e.stopPropagation();
@@ -158,29 +209,7 @@ $(function() {
 				addToLocalStorage(url);				
 			}		
 		}
-	});	
-
-	var consumeTweets = function(tweets) {
-		var newTweets = [];
-		ko.utils.arrayForEach(tweets, function(tweet) {
-			newTweets.push({ 
-				id: tweet.id_str, 
-				content: tweet.text, 
-				user: { 
-					screen_name: tweet.user.screen_name,
-					name: tweet.user.name
-				}
-			});
-		});
-
-		twitterFeed.addTweets(newTweets);
-						
-		var tweets = ko.utils.arrayMap(twitterFeed.getTweets(), function(t) {
-			return new Tweet(t.id, t.content, new User(t.user.screen_name, t.user.name));
-		});
-
-		viewmodel.feed(tweets);		
-	};
+	});		
 
 	ko.computed(function() {
 		if(viewmodel.loggedIn()) {
@@ -190,6 +219,7 @@ $(function() {
 			var lastTweet = twitterFeed.getTweets()[0];
 			var sinceId = (lastTweet && lastTweet.id) || 0;
 						
+			/*
 			$.ajax({
 				url: timelineUrl + '/' + sinceId,
 				jsonp: 'callback',
@@ -203,6 +233,11 @@ $(function() {
 			.always(function() {
 				viewmodel.loading(false);
 			});
+			*/
+			
+			consumeTweets([]);
+			viewmodel.loading(false);
+			
 		}		
 	});
 

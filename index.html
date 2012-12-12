@@ -35,7 +35,9 @@
                 <!-- /ko -->
 
                 <!-- ko if: feed().length > 0 && loggedIn() -->
-                <div id="tweets-container" data-bind="template: { name: 'tweet-template', foreach: feed }">                    
+                <div id="tweets-container">
+                    <div class="tile button load-more">MOAR</div>
+                    <div data-bind="template: { name: 'tweet-template', foreach: feed }"></div>
                 </div>
                 <!-- /ko -->
 
@@ -68,8 +70,8 @@
     </body>
 
     <script type="text/html" id="tweet-template">
-        <div class="tweet" data-bind="css: { 'selected' : isSelected, 'saved': isSaved, 'move-off-screen': isBeingDeleted, 'move-right': isBeingSaved }">
-            <div><span class="user" data-bind="text: user.handle"></span></div>
+        <div class="tile tweet" data-bind="css: { 'selected' : isSelected, 'saved': isSaved, 'move-off-screen': isBeingDeleted, 'move-right': isBeingSaved }">
+            <div class="user-container"><span class="user" data-bind="text: user.handle"></span></div>
             <div><span class="content" data-bind="html: content"></span></div>
         </div>
     </script>
