@@ -1,4 +1,4 @@
-var timelineUrl = "http://ec2-54-242-59-225.compute-1.amazonaws.com/tweets/timeline";
+var timelineUrl = "http://ec2-107-21-68-179.compute-1.amazonaws.com:3000/tweets/timeline";
 
 var linkRegex = /((http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?)/
 function replaceLinks(text) {
@@ -214,30 +214,16 @@ $(function() {
 	ko.computed(function() {
 		if(viewmodel.loggedIn()) {
 			
-			viewmodel.loading(true);
-
 			var lastTweet = twitterFeed.getTweets()[0];
 			var sinceId = (lastTweet && lastTweet.id) || 0;
 						
-			/*
-			$.ajax({
-				url: timelineUrl + '/' + sinceId,
-				jsonp: 'callback',
-				dataType: 'jsonp'				
-			})
-			.done(consumeTweets)
-			.fail(function(error, statusText) {
-				console.log(error);
-				console.log(statusText);
-			})
-			.always(function() {
-				viewmodel.loading(false);
-			});
-			*/
-			
-			consumeTweets([]);
-			viewmodel.loading(false);
-			
+			if(!sinceId) {
+				viewmodel.loading(true);
+				loadTweets();			
+			} else {
+				consumeTweets([]);
+			}
+
 		}		
 	});
 
