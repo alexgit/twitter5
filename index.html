@@ -28,7 +28,7 @@
                         <input type="password" data-bind="value: password" placeholder="password" /> <br/>
                         <button data-bind="click: login">login</button>
                     </div>
-                </div>
+                </div>                
 
                 <!-- ko if: !loading() && feed().length == 0 -->
                     <div>No tweets</div>
@@ -36,7 +36,10 @@
 
                 <!-- ko if: feed().length > 0 && loggedIn() -->
                 <div id="tweets-container">
-                    <div class="tile button load-more">MOAR</div>
+                    <div class="tile button load-more" data-bind="css: { loading: loading }">
+                        <span>MOAR</span>
+                        <div class="busy" style="display: none" data-bind="visible: loading"></div>
+                    </div>
                     <div data-bind="template: { name: 'tweet-template', foreach: feed }"></div>
                 </div>
                 <!-- /ko -->

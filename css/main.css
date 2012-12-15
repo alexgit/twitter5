@@ -225,6 +225,15 @@ div.button.load-more {
     -moz-transition: 300ms ease-out;    
     
     text-align: center;
+    height: 24px;
+}
+
+div.button.load-more.loading {
+    /* background: url('../img/spinner.gif') no-repeat center; */
+}
+
+div.button.load-more.loading span {
+    display: none;
 }
 
 div.button.load-more.tapped {
@@ -236,6 +245,38 @@ div.user-container {
     margin-bottom: 10px;
     color: yellow;
 }
+
+div.busy
+{
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 8px solid #fff;
+    border-right-color: transparent;
+    border-radius: 50%;
+    box-shadow: 0 0 25px 2px #eee;
+    background-color: #222222;
+
+    margin-left: 120px;
+
+    -moz-animation: spin 1s linear infinite;
+    -webkit-animation: spin 1s linear infinite;
+}
+
+@-webkit-keyframes spin
+{
+    from { -webkit-transform: rotate(0deg); }
+    50%  { -webkit-transform: rotate(180deg); }
+    to   { -webkit-transform: rotate(360deg); }
+}
+
+@-moz-keyframes spin
+{
+    from { -moz-transform: rotate(0deg); }
+    50%  { -moz-transform: rotate(180deg); }
+    to   { -moz-transform: rotate(360deg); }
+}
+
 
 /* ==========================================================================
    Media Queries

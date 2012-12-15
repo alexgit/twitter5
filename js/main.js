@@ -11,7 +11,7 @@ function User(screenName, name) {
 	this.handle = '@' + this.screenName;
 }
 
-function Tweet(id, content, user) {
+function Tweet(id, content, date, user) {
 	this.content = replaceLinks(content);
 	this.isSelected = ko.observable(false);
 	this.isSaved = ko.observable(false);
@@ -19,6 +19,7 @@ function Tweet(id, content, user) {
 	this.isBeingSaved = ko.observable(false);
 	this.id = id;
 	this.user = user;	
+	this.date = date;
 	
 	this.save = function() {
 		this.isSaved(!this.isSaved());
@@ -105,7 +106,8 @@ $(function() {
 				user: { 
 					screen_name: tweet.user.screen_name,
 					name: tweet.user.name
-				}
+				},
+				date: new Date(tweet.created_at)
 			});
 		});
 
@@ -113,13 +115,15 @@ $(function() {
 			twitterFeed.addTweets(newTweets);
 						
 		var tweets = ko.utils.arrayMap(twitterFeed.getTweets(), function(t) {
-			return new Tweet(t.id, t.content, new User(t.user.screen_name, t.user.name));
+			return new Tweet(t.id, t.content, t.date, new User(t.user.screen_name, t.user.name));
 		});
 
 		viewmodel.feed(tweets);		
 	};
 
 	var loadTweets = function() {
+		viewmodel.loading(true);
+
 		var lastTweet = twitterFeed.getTweets()[0];
 		var sinceId = (lastTweet && lastTweet.id) || 0;
 								
@@ -183,11 +187,7 @@ $(function() {
 	});
 
 	$(document).on('tap', 'div.button.load-more', function(e) { 
-		var button = $(this);
-			
-		button.addClass('tapped');
-		setTimeout(function() { button.removeClass('tapped') }, 300);
-
+		var button = $(this);		
 		loadTweets();
 	});
 
@@ -217,8 +217,7 @@ $(function() {
 			var lastTweet = twitterFeed.getTweets()[0];
 			var sinceId = (lastTweet && lastTweet.id) || 0;
 						
-			if(!sinceId) {
-				viewmodel.loading(true);
+			if(!sinceId) {				
 				loadTweets();			
 			} else {
 				consumeTweets([]);
