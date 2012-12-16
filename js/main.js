@@ -37,11 +37,17 @@ var savedTweets = new TwitterFeed('saved');
 
 var viewmodel = {
 	feed: ko.observableArray([]),
+	saved: ko.observableArray([]),	
 	currentlyMarked : null,
 	loading: ko.observable(false),
 	username: ko.observable(),
 	password: ko.observable(),
 	loggedIn: ko.observable(isLoggedIn),
+	pages: {
+		'0': { name: 'main-page', scrollY: 0 },
+		'1': { name: 'saved-page', scrollY: 0 }		
+	},
+	page: ko.observable(0),
 	remove: function(tweet) {
 		var self = this;
 
@@ -49,7 +55,10 @@ var viewmodel = {
 		
 		setTimeout(function() {
 			viewmodel.feed.remove(tweet);
-		}, 210);
+		}, 210);		
+	},
+	purge: function(tweet) {
+		this.saved.remove(tweet);
 	},
 	save: function(tweet) {
 		var self = this;
@@ -59,9 +68,9 @@ var viewmodel = {
 		setTimeout(function() {
 			viewmodel.feed.remove(tweet);
 		}, 210);	
-
-		savedTweets.addTweet(tweet); 
-	},
+		
+		this.saved.unshift(tweet);
+	},	
 	toggleMarked: function(tweet) {
 		tweet.toggleMarked();
 
@@ -76,6 +85,20 @@ var viewmodel = {
 
 		localStorage.username = this.username();
 		localStorage.password = this.password();
+	},
+	turnPage: function(direction) {
+		var currentPage = this.page();
+		var newPage =  currentPage + (direction == 'left' ? -1 : direction == 'right' ? 1 : 0);
+
+		if(newPage == currentPage) {
+			return;
+		}
+
+		if(newPage in this.pages) {
+			this.pages[currentPage].scrollY = window.scrollY;
+			this.page(newPage);
+			window.scrollTo(0, this.pages[newPage].scrollY);
+		}
 	}
 };
 
@@ -116,9 +139,14 @@ $(function() {
 						
 		var tweets = ko.utils.arrayMap(twitterFeed.getTweets(), function(t) {
 			return new Tweet(t.id, t.content, t.date, new User(t.user.screen_name, t.user.name));
+		});		
+
+		var sTweets = ko.utils.arrayMap(savedTweets.getTweets(), function(t) {
+			return new Tweet(t.id, t.content, t.date, new User(t.user.screen_name, t.user.name));
 		});
 
-		viewmodel.feed(tweets);		
+		viewmodel.feed(tweets);
+		viewmodel.saved(sTweets);
 	};
 
 	var loadTweets = function() {
@@ -140,40 +168,49 @@ $(function() {
 			.always(function() {
 				viewmodel.loading(false);
 			});		
-	};
+	}; 	
 	
- 	window.addEventListener('online', function(e) {
- 		var links = getLinksFromLocalStorage();		
+	var mainPage = $('#main-page');	
+	var savedPage = $('#saved-tweets-page');
 
-		for (var i = 0, size = links.length; i < size; i++) {
- 			(function(j){
- 				instapaper.addURL(links[j])
-					.done(function(response, statusText) { 
-						console.log('added successfully to instapaper');
-						links.splice(j, 1);
-						localStorage.links = JSON.stringify(links);
-					})
-					.fail(function(response, statusText) { 
-						console.log('failed to add to instapaper');						
-					});
- 			})(i); 			
- 		}
- 	}, false);
-	
-	$(document).on('swipeleft', 'div.tweet', function(e) { 
+	mainPage.on('swipeleft', 'div.tweet', function(e) { 
 		var tweet = ko.dataFor(this);
 
 		if(tweet.isSelected()) {
+			e.stopPropagation();
 			viewmodel.remove(tweet);
 		}
 	});
 
-	$(document).on('swiperight', 'div.tweet', function(e) { 		
+	mainPage.on('swiperight', 'div.tweet', function(e) { 		
 		var tweet = ko.dataFor(this);
 
 		if(tweet.isSelected()) {
+			e.stopPropagation();
+
 			viewmodel.save(tweet);
+			twitterFeed.moveTweet(tweet.id).to(savedTweets);
+			viewmodel.toggleMarked(tweet);
 		}
+	});
+
+	savedPage.on('swiperight', 'div.tweet', function(e) { 		
+		var tweet = ko.dataFor(this);
+
+		if(tweet.isSelected()) {
+			e.stopPropagation();
+
+			viewmodel.purge(tweet);
+			savedTweets.removeTweet(tweet.id);
+		}
+	});
+
+	$(document).on('swipeleft', function(e) {
+		viewmodel.turnPage('right');
+	});
+
+	$(document).on('swiperight', function(e) {
+		viewmodel.turnPage('left');		
 	});
 
 	$(document).on('tap', 'div.tweet', function(e) { 
@@ -186,7 +223,7 @@ $(function() {
 		e.stopPropagation();
 	});
 
-	$(document).on('tap', 'div.button.load-more', function(e) { 
+	mainPage.on('tap', 'div.button.load-more', function(e) { 
 		var button = $(this);		
 		loadTweets();
 	});
@@ -210,6 +247,24 @@ $(function() {
 			}		
 		}
 	});		
+
+	window.addEventListener('online', function(e) {
+ 		var links = getLinksFromLocalStorage();		
+
+		for (var i = 0, size = links.length; i < size; i++) {
+ 			(function(j){
+ 				instapaper.addURL(links[j])
+					.done(function(response, statusText) { 
+						console.log('added successfully to instapaper');
+						links.splice(j, 1);
+						localStorage.links = JSON.stringify(links);
+					})
+					.fail(function(response, statusText) { 
+						console.log('failed to add to instapaper');						
+					});
+ 			})(i); 			
+ 		}
+ 	}, false);
 
 	ko.computed(function() {
 		if(viewmodel.loggedIn()) {

@@ -22,32 +22,37 @@
         <div class="main-container">
             <div class="main wrapper clearfix">
 
-                <div id="login-container">
-                    <div data-bind="visible: !loggedIn()">
-                        <input type="text" data-bind="value: username" placeholder="username" /> <br/>
-                        <input type="password" data-bind="value: password" placeholder="password" /> <br/>
-                        <button data-bind="click: login">login</button>
+                <div id="main-page" data-bind="visible: page() == 0">
+                    <div id="login-container">
+                        <div data-bind="visible: !loggedIn()">
+                            <input type="text" data-bind="value: username" placeholder="username" /> <br/>
+                            <input type="password" data-bind="value: password" placeholder="password" /> <br/>
+                            <button data-bind="click: login">login</button>
+                        </div>
+                    </div>                
+
+                    <!-- ko if: !loading() && feed().length == 0 -->
+                        <div>No tweets</div>
+                    <!-- /ko -->
+
+                    <!-- ko if: feed().length > 0 && loggedIn() -->
+                    <div id="tweets-container">
+                        <div class="tile button load-more" data-bind="css: { loading: loading }">
+                            <span>MOAR</span>
+                            <div class="busy" style="display: none" data-bind="visible: loading"></div>
+                        </div>
+                        <div data-bind="template: { name: 'tweet-template', foreach: feed }"></div>
                     </div>
-                </div>                
+                    <!-- /ko -->
 
-                <!-- ko if: !loading() && feed().length == 0 -->
-                    <div>No tweets</div>
-                <!-- /ko -->
-
-                <!-- ko if: feed().length > 0 && loggedIn() -->
-                <div id="tweets-container">
-                    <div class="tile button load-more" data-bind="css: { loading: loading }">
-                        <span>MOAR</span>
-                        <div class="busy" style="display: none" data-bind="visible: loading"></div>
+                    <div data-bind="visible: loggedIn() && loading()">
+                        Loading...
                     </div>
-                    <div data-bind="template: { name: 'tweet-template', foreach: feed }"></div>
-                </div>
-                <!-- /ko -->
-
-                <div data-bind="visible: loggedIn() && loading()">
-                    Loading...
                 </div>
 
+                <div id="saved-tweets-page" data-bind="visible: page() == 1">
+                    <div data-bind="template: { name: 'tweet-template', foreach: saved }"></div>
+                </div>
 
             </div> <!-- #main -->
         </div> <!-- #main-container -->        
