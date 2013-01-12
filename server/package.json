@@ -1,0 +1,10 @@
+{
+  "name": "twitter-app",
+  "description": "server for my html 5 mobile twitter app",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "3.0.4",
+    "oauth": "0.9.8"
+  }
+}
