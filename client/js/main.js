@@ -1,4 +1,4 @@
-var timelineUrl = "http://ec2-107-21-68-179.compute-1.amazonaws.com:3000/tweets/timeline";
+var timelineUrl = "http://localhost:3000/tweets/timeline";
 
 var linkRegex = /((http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?)/
 function replaceLinks(text) {
