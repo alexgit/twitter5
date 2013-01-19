@@ -13,7 +13,7 @@ function InstaPaperClient(username, password) {
 			console.log(response);
 		}
 
-		function runIfReady() {			
+		function runIfReady() {
 			if(!cb || !fcb) {
 				return;
 			}
@@ -30,7 +30,7 @@ function InstaPaperClient(username, password) {
 				data: params,
 				complete: function(jqXHR, textStatus) {
 					var callback = jqXHR.status === 200 ? cb : fcb;
-					callback(jqXHR, textStatus);					
+					callback(jqXHR, textStatus);
 				}
 			});
 		}
@@ -57,5 +57,5 @@ function InstaPaperClient(username, password) {
 		};
 
 		return callbacks;
-	}
-};
+	};
+}

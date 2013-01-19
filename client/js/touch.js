@@ -1,4 +1,4 @@
-$(function() {
+(function(global, undefined) {
 
 	var touch = {
 		settings: {
@@ -10,8 +10,7 @@ $(function() {
 
 	var touches = {};
 
-	document.addEventListener('touchstart', function(e) {		
-		
+	document.addEventListener('touchstart', function(e) {
 		var touchStartEvent = e.targetTouches[0];
 
 		var timeoutId = setTimeout(function() {
@@ -19,14 +18,14 @@ $(function() {
 			$(touchStartEvent.target).trigger('taphold', [ touchStartEvent ]);
 		}, touch.settings.tapholdDurationThreashold);
 
-		var eventInfo = { 
-			pageX: touchStartEvent.pageX, 
-			pageY: touchStartEvent.pageY, 
-			event: touchStartEvent, 
-			timeoutId: timeoutId 
+		var eventInfo = {
+			pageX: touchStartEvent.pageX,
+			pageY: touchStartEvent.pageY,
+			event: touchStartEvent,
+			timeoutId: timeoutId
 		};
 
-		touches[touchStartEvent.identifier] = eventInfo;			
+		touches[touchStartEvent.identifier] = eventInfo;
 
 		function moveHandler(e) {
 			var currentX = e.touches[0].pageX;
@@ -37,7 +36,6 @@ $(function() {
 		}
 
 		document.addEventListener('touchmove', moveHandler, false);
-
 		document.addEventListener('touchend', function(e) {
 			document.removeEventListener('touchmove', moveHandler, false);
 		}, false);
@@ -51,17 +49,8 @@ $(function() {
 		
 		if (touchStart.timeoutId) {
 			clearTimeout(touchStart.timeoutId);
-
-			console.log('cleared timeout');
-
-			console.log(touchStart.pageX, touchEndEvent.pageX, touchStart.pageY, touchEndEvent.pageY);
-
 			if(touchStart.pageX == touchEndEvent.pageX && touchStart.pageY == touchEndEvent.pageY) {
-					console.log(touchEndEvent.target);
-					
 					$(touchEndEvent.target).trigger('tap');
-
-					console.log('fired tap event');
 			}
 		}
 
@@ -69,16 +58,15 @@ $(function() {
 
 		if(swipeLength > touch.settings.swipeLengthThreshold) {
 			var direction = touchEndEvent.pageX > touchStart.pageX ? 'right' : 'left';
-
 			var events = {
 				start: touchStart.event,
 				end: touchEndEvent
 			};
-			
-			$(touchStart.event.target).trigger('swipe' + direction, [ events ]);		
+			$(touchStart.event.target).trigger('swipe' + direction, [ events ]);
 		}
 
 	}, false);
 
-	window.touch = touch;
-});
+	global.touch = touch;
+	
+})(window);

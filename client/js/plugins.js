@@ -19,6 +19,21 @@
             console[method] = noop;
         }
     }
+
+    //knockout extension
+    ko.bindingHandlers.slideIn = {
+        update: function(element, valueAccessor, allBindingsAccessor, viewmodel, bindingContext) {
+            var value = valueAccessor();
+
+            if(value) {
+                console.log('sliding in');
+                $('#pages').animate({ left: '+=360' }, "slow");
+            } else {
+                console.log('sliding out');
+                $('#pages').animate({ left: '-=360' }, "slow");
+            }
+        }
+    };
 }());
 
 // Place any jQuery/helper plugins in here.

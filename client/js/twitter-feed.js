@@ -2,7 +2,7 @@
 (function(global, undefined) {
 	
 	if(!localStorage)
-		throw "localStorage not supported"
+		throw "localStorage not supported";
 
 	function TwitterFeed(key, days) {
 		days = days || 2;
@@ -13,7 +13,7 @@
 			cutoffDate.setDate(now.getDate() - 2);
 
 			for (var i = tweets.length - 1; i >= 0; i--) {
-				if(tweets[i].date > cutoffDate) {					
+				if(tweets[i].date > cutoffDate) {
 					return tweets.slice(0, i + 1);
 				}
 			}
@@ -27,7 +27,7 @@
 
 		this.getTweets = function() {
 			return JSON.parse(localStorage[key]);
-		};		
+		};
 
 		this.addTweets = function(tweets) {
 			var currentTweets = this.getTweets();
@@ -36,14 +36,14 @@
 				currentTweets.unshift(tweets[i]);
 			}
 
-			var trimmed = trim(currentTweets);
-			localStorage[key] = JSON.stringify(trimmed);
-		}
+			//var trimmed = trim(currentTweets);
+			localStorage[key] = JSON.stringify(currentTweets);
+		};
 
 		this.addTweet = function(tweet) {
 			this.addTweets([tweet]);
-		}
-
+		};
+		
 		this.removeTweet = function(tweetId) {
 			var tweets = this.getTweets();
 			var target;
@@ -51,7 +51,7 @@
 			for (var i = 0, j = tweets.length; i < j; i++) {
 				if(tweets[i].id == tweetId) {
 					target = tweets.splice(i, 1)[0];
-					break;				
+					break;
 				}
 			}
 
@@ -61,22 +61,22 @@
 
 			localStorage[key] = JSON.stringify(tweets);
 			return target;
-		}
+		};
 
 		this.moveTweet = function(tweetId) {
 			var self = this;
 
 			return {
 				to: function(feed) {
-					var target = self.removeTweet(tweetId);				
+					var target = self.removeTweet(tweetId);
 
 					if(!target)
 						throw "Can't find tweet with id " + tweetId + " in this feed";
 
-					feed.addTweet(target);		
+					feed.addTweet(target);
 				}
-			}							
-		}
+			};
+		};
 	}
 
 	global.TwitterFeed = TwitterFeed;
