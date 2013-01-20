@@ -1,4 +1,4 @@
 # keys and tokens
-server/keys-and-access-tokens.js
-server/node_modules
-server/node_modules/*
+keys-and-access-tokens.js
+node_modules
+node_modules/*

@@ -1,4 +1,4 @@
-var timelineUrl = "http://192.168.0.104:3000/tweets/timeline";
+var timelineUrl = "http://localhost:3000/tweets/timeline";
 
 var linkRegex = /((http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?)/
 function replaceLinks(text) {
@@ -20,6 +20,7 @@ function Tweet(id, content, date, user) {
 	this.id = id;
 	this.user = user;
 	this.date = date;
+	this.savedForReading = ko.observable(false);
 
 	this.save = function() {
 		this.isSaved(!this.isSaved());
@@ -232,7 +233,8 @@ $(function() {
 		e.preventDefault();
 		e.stopPropagation();
 
-		var link = $(this);
+		var link = $(this),
+				tweet = ko.dataFor(this);
 
 		if(confirm('Add to instapaper?')) {
 
@@ -240,9 +242,14 @@ $(function() {
 
 			if(navigator.onLine) {
 				instapaper.addURL(url)
-					.done(function(response) { console.log('added successfully to instapaper'); })
-					.fail(function(response) { console.log('failed to add to instapaper'); });
-				} else {
+					.done(function(response) {
+						console.log('added successfully to instapaper');
+						tweet.savedForReading(true);
+					})
+					.fail(function(response) {
+						console.log('failed to add to instapaper');
+					});
+			} else {
 				addToLocalStorage(url);
 			}
 		}

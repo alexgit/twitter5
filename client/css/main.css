@@ -175,20 +175,20 @@ div.tile {
     background-color: #333333;
     color: #EAEAEA;
     margin-bottom: 10px;
-    padding: 10px;    
+    padding: 10px;
     font-size: 16px;
     font-family: Arial,Verdana,sans-serif;
     width: 266px;
     overflow: hidden;
     line-height: 1.5;
     -webkit-border-radius: 5px;
-    -webkit-box-shadow: 2px 2px 2px #888;   
+    -webkit-box-shadow: 2px 2px 2px #888;
 }
 
-div.tweet {    
+div.tweet {
     -webkit-transition: 200ms ease-out;
 
-    text-align: left;       
+    text-align: left;
     /* background: -webkit-linear-gradient(left, #1BA5E0, #68BEE3); */
 }
 
@@ -220,10 +220,15 @@ div.tweet.move-off-screen > span.content {
     display: none;
 }
 
+div.tweet.saved-for-reading {
+    -webkit-border-top-left-radius: 20px;
+    -webkit-border-bottom-right-radius: 20px;
+}
+
 div.button.load-more {
     -webkit-transition: 300ms ease-out;
-    -moz-transition: 300ms ease-out;    
-    
+    -moz-transition: 300ms ease-out;
+
     text-align: center;
     height: 24px;
 }

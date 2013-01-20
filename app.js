@@ -29,14 +29,16 @@ function startServer(keys) {
 
     oAuth.get(url, keys.accessToken, keys.accessTokenSecret,
       function(err, data) {
-        if(err) console.log(err)
-        else callback(err, data)
+        if(err) console.log(err);
+        else callback(err, data);
       }
     );
   };
 
   var express = require("express");
   var app = express();
+
+  app.use('/client', express.static(__dirname + '/client'));
 
   app.get('/tweets/timeline/:since_id', function(req, res) {
 
@@ -52,8 +54,7 @@ function startServer(keys) {
   });
 
   app.listen(3000);
-};
-
+}
 
 
 
